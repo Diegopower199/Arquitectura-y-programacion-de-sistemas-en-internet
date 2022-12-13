@@ -1,0 +1,5 @@
+{
+    "deno.enable": true,
+    "deno.unstable": true,
+    "deno.importMap": "/home/diego/Proyectos TypeScript/Practica33/import_map.json"
+}
