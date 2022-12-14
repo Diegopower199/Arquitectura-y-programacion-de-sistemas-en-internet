@@ -14,17 +14,33 @@ import { Coche, Concesionario, Vendedor } from "../types.ts";
 export const Mutation = {
   crearVendedor: async (
     _: unknown,
-    args: { name: string },
+    args: { name: string; dni: string },
   ): Promise<Vendedor> => {
     try {
+      if (!/^[0-9]{8}[BCDFGHJKLMNPRSTVWXYZ]{1}$/.test(args.dni)) {
+        throw new Error("El campo dni no se ha rellenado correctamente");
+      }
+
+      const vendedorDNIEncontrado = await VendedoresCollection.findOne({
+        dni: args.dni,
+      });
+
+      if (vendedorDNIEncontrado) {
+        throw new Error(
+          "No puedes añadir a un vendedor con este dni, ya esta en la base de datos",
+        );
+      }
+
       const vendedor: ObjectId = await VendedoresCollection.insertOne({
         name: args.name,
+        dni: args.dni,
         coches: [],
       });
 
       return {
         id: vendedor.toString(),
         name: args.name,
+        dni: args.dni,
         coches: [],
       };
     } catch (error) {
@@ -47,7 +63,15 @@ export const Mutation = {
           args.matricula,
         )
       ) {
-        throw Error("Formato matricula incorrecto");
+        throw new Error("Formato matricula incorrecto");
+      }
+
+      if (args.asientos <= 0) {
+        throw new Error("No puedes tener asientos negativos o 0 asientos");
+      }
+
+      if (args.precio <= 0) {
+        throw new Error("NO puedes tener un precio negativo o a 0");
       }
 
       const matriculaEncontrada: CocheSchema | undefined =
@@ -128,6 +152,16 @@ export const Mutation = {
         throw new Error("No se encuentra el id del coche o del vendedor");
       }
 
+      const encontrarCocheArray = encontrarVendedor.coches.find((coches) => {
+        return coches.toString() === args.idCoche;
+      });
+
+      if (encontrarCocheArray) {
+        throw new Error(
+          "Ya esta el id del coche en la base de datos de este vendedor",
+        );
+      }
+
       const vendedor = await VendedoresCollection.updateOne(
         { _id: new ObjectId(args.idVendedor) },
         {
@@ -143,6 +177,7 @@ export const Mutation = {
         return {
           id: encontrarVendedor._id.toString(),
           name: encontrarVendedor.name,
+          dni: encontrarVendedor.dni,
           coches: encontrarVendedor.coches,
         };
       } else {
@@ -156,7 +191,6 @@ export const Mutation = {
       /*const vendedor = await VendedoresCollection.updateOne (
                 {_id: new ObjectId (args.idVendedor)},
                 { $push: { coches: new ObjectId(coches._id)}}
-
             );*/
     } catch (error) {
       console.error(error);
@@ -196,6 +230,19 @@ export const Mutation = {
         );
       }
 
+      // Para que no se repita el id en el array vendedor
+      const encontrarVendedorArray = encontrarConcesionario.vendedores.find(
+        (vendedor) => {
+          return vendedor.toString() === args.idVendedor;
+        },
+      );
+
+      if (encontrarVendedorArray) {
+        throw new Error(
+          "Ya esta el id del vendedor en la base de datos de este concesionario",
+        );
+      }
+
       const concesionario = await ConcesionariosCollection.updateOne(
         { _id: new ObjectId(args.idConcesionario) },
         {
@@ -216,16 +263,6 @@ export const Mutation = {
       } else {
         throw new Error("NO se ha podido modificar al vendedor");
       }
-
-      /*return {
-          id: args.idVendedor,
-        }*/
-
-      /*const vendedor = await VendedoresCollection.updateOne (
-                {_id: new ObjectId (args.idVendedor)},
-                { $push: { coches: new ObjectId(coches._id)}}
-
-            );*/
     } catch (error) {
       console.error(error);
       throw new Error(error);

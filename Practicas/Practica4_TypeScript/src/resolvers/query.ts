@@ -65,6 +65,7 @@ export const Query = {
       return {
         id: vendedor._id.toString(),
         name: vendedor.name,
+        dni: vendedor.dni,
         coches: vendedor.coches,
       };
 
@@ -75,7 +76,7 @@ export const Query = {
     }
   },
 
-  getVendedoresNombres: async (
+  getVendedorPorNombre: async (
     _: unknown,
     args: { name: string },
   ): Promise<Vendedor[]> => {
@@ -91,6 +92,7 @@ export const Query = {
       return vendedores.map((vendedor: VendedorSchema) => ({
         id: vendedor._id.toString(),
         name: vendedor.name,
+        dni: vendedor.dni,
         coches: vendedor.coches,
       }));
     } catch (error) {
@@ -126,6 +128,11 @@ export const Query = {
     args: { precioMin: number; precioMax: number },
   ): Promise<Coche[]> => {
     try {
+      if (args.precioMin < 0 || args.precioMax < 0) {
+        throw new Error(
+          "El parametro precioMin o precioMax no pueden tener valores negativos",
+        );
+      }
       const coches: CocheSchema[] = await CochesCollection.find({
         precio: {
           $gte: args.precioMin, // Mayor o igual que el minimo
