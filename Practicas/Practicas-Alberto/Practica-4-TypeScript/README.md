@@ -6,6 +6,7 @@ La base de datos debe estar alojada en MongoDB Atlas. En el repositorio se debe 
 
 La API debe gestionar un sistema de citas médicas.
 Las citas médicas (slots) contienen los siguientes datos
+    
     - day (número del 1 al 31)
 
     - month (número del 1 al 12, se debe comprobar que el día es correcto según el mes)
@@ -22,7 +23,9 @@ Para ello debe contener las siguientes queries/mutaciones. El alumno debe decidi
 
 addSlot:
 Permite al médico añadir un horario disponible para una cita. Por ejemplo, si añade lo siguiente:
+
 {
+
   "day": 12,
 
   "month": 2,
@@ -30,10 +33,12 @@ Permite al médico añadir un horario disponible para una cita. Por ejemplo, si 
   "year": 2023,
   
   "hour": 13
+
 }
 
 Creará una cita (available:true) el 12/2/2023.
 Al añadir una cita se debe comprobar que no haya ya una cita en ese horario
+
     - Si ya hay una cita y está ocupada (available:false) devolverá un error La cita ya existe y está ocupada
 
     - Si ya hay una cita y está libre (available:true) la deja como está y devuelve los datos de la cita.
@@ -47,6 +52,7 @@ removeSlot
 Permite al médico eliminar un horario disponible para una cita. Lo hará a través de los datos: day, month, year, hour
 
 Al eliminar una cita se debe comprobar que haya ya una cita en ese horario
+
     - Si ya hay una cita y está ocupada (available:false) devolverá un error La cita está ocupada
 
     - Si ya hay una cita y está libre (available:true) la elimina y devuelve los datos de la cita
@@ -56,6 +62,7 @@ availableSlots
 Permite a un paciente consultar las citas disponibles en un determinado día o en un determinado mes. Devolverá un array de citas. Si no hay citas disponibles devolverá un array estará vacío.
 
 Hay dos opciones de parámetros
+
     - Parámetros day, month, year, devuelve un listado con todas las citas disponibles en el día, mes y año fijados.
 
     - Parámetros month, year, devuelve un listado con todas las citas disponibles en el mes y año fijados.
@@ -63,6 +70,7 @@ Hay dos opciones de parámetros
 
 bookSlot
 Permite al paciente reservar una cita concreta
+
     - Si no existe una cita disponible ese día y hora devuelve un error No existe una cita disponible
 
     - Si existe una cita disponible la pondrá como ocupada y guardará el dni del paciente. Devolverá los datos de la cita
