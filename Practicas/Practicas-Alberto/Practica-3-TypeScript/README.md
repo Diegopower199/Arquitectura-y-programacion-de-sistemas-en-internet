@@ -1,5 +1,3 @@
-#Practica 3
-
 Partiendo de la solución del Examen Parcial se pide añadir la siguiente funcionalidad y datos
 
     - Las citas médicas tendrdán un campo "id_doctor" de tipo string. Cuando el médico crea una cita deberá indicar su id (un string cualquiera).

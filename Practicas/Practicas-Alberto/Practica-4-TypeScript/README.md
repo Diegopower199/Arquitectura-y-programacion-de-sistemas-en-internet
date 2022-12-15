@@ -1,5 +1,3 @@
-#Práctica 4
-
 La práctica se debe entregar a través del campus virtual:
 
 Se pide realizar una API GraphQL usando Deno y Mongo DB.

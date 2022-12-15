@@ -1,4 +1,3 @@
-#Práctica 2
 
 
 Se pide realizar una API Rest usando Deno y Mongo DB como base de datos.
