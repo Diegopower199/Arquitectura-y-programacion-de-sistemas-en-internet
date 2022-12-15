@@ -7,10 +7,15 @@ La base de datos debe estar alojada en MongoDB Atlas. En el repositorio se debe 
 La API debe gestionar un sistema de citas médicas.
 Las citas médicas (slots) contienen los siguientes datos
     - day (número del 1 al 31)
+
     - month (número del 1 al 12, se debe comprobar que el día es correcto según el mes)
+
     - year (número)
+
     - hour (número entero del 0 al 23)
+    
     - available (verdadero o falso)
+    
     - dni (texto con el dni del paciente en el caso de que la cita haya sido pedida)
 
 Para ello debe contener las siguientes queries/mutaciones. El alumno debe decidir si es query o mutation:
@@ -19,16 +24,22 @@ addSlot:
 Permite al médico añadir un horario disponible para una cita. Por ejemplo, si añade lo siguiente:
 {
   "day": 12,
+
   "month": 2,
+  
   "year": 2023,
+  
   "hour": 13
 }
 
 Creará una cita (available:true) el 12/2/2023.
 Al añadir una cita se debe comprobar que no haya ya una cita en ese horario
     - Si ya hay una cita y está ocupada (available:false) devolverá un error La cita ya existe y está ocupada
+
     - Si ya hay una cita y está libre (available:true) la deja como está y devuelve los datos de la cita.
+    
     - Si la cita no existe la añade y devuelve la cita.
+
 Si los datos de día, mes, año y hora son incorrectos devolverá un error Datos incorrectos
 
 
@@ -37,6 +48,7 @@ Permite al médico eliminar un horario disponible para una cita. Lo hará a trav
 
 Al eliminar una cita se debe comprobar que haya ya una cita en ese horario
     - Si ya hay una cita y está ocupada (available:false) devolverá un error La cita está ocupada
+
     - Si ya hay una cita y está libre (available:true) la elimina y devuelve los datos de la cita
 
 
@@ -45,10 +57,12 @@ Permite a un paciente consultar las citas disponibles en un determinado día o e
 
 Hay dos opciones de parámetros
     - Parámetros day, month, year, devuelve un listado con todas las citas disponibles en el día, mes y año fijados.
+
     - Parámetros month, year, devuelve un listado con todas las citas disponibles en el mes y año fijados.
 
 
 bookSlot
 Permite al paciente reservar una cita concreta
     - Si no existe una cita disponible ese día y hora devuelve un error No existe una cita disponible
+
     - Si existe una cita disponible la pondrá como ocupada y guardará el dni del paciente. Devolverá los datos de la cita

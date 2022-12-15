@@ -24,6 +24,9 @@ La API debe gestionar una red de taxis tipo Cabify, debe contener los siguientes
 
 El tipo Coche contiene
     - id
+
     - matrícula
+
     - número de plazas
+    
     - status
