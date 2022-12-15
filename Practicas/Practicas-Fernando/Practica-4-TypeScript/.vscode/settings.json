@@ -1,5 +1,5 @@
 {
   "deno.enable": true,
-  "deno.importMap": "/home/diego/arquitectura-y-programacion-de-sistemas-en-internet/Practicas/Practicas-Fernando/Practica4_TypeScript/import_map.json",
+  "deno.importMap": "./import_map.json",
   "deno.unstable": true
 }
