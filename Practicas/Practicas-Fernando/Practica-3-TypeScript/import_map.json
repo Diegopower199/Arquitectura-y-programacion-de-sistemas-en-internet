@@ -5,4 +5,4 @@
       "mongo": "https://deno.land/x/mongo@v0.31.1/mod.ts",
       "std/": "https://deno.land/std@0.161.0/"
     }
-}
+  }

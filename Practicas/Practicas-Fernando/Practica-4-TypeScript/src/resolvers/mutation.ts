@@ -9,26 +9,22 @@ import {
   ConcesionarioSchema,
   VendedorSchema,
 } from "../db/schema.ts";
-import { Coche, Concesionario, Vendedor } from "../types.ts";
 
 export const Mutation = {
   crearVendedor: async (
     _: unknown,
-    args: { name: string; dni: string },
-  ): Promise<Vendedor> => {
+    args: { name: string, dni: string },
+  ): Promise<VendedorSchema> => {
     try {
+
       if (!/^[0-9]{8}[BCDFGHJKLMNPRSTVWXYZ]{1}$/.test(args.dni)) {
-        throw new Error("El campo dni no se ha rellenado correctamente");
+        throw new Error("El campo dni no se ha rellenado correctamente")
       }
 
-      const vendedorDNIEncontrado = await VendedoresCollection.findOne({
-        dni: args.dni,
-      });
+      const vendedorDNIEncontrado = await VendedoresCollection.findOne({ dni: args.dni});
 
       if (vendedorDNIEncontrado) {
-        throw new Error(
-          "No puedes añadir a un vendedor con este dni, ya esta en la base de datos",
-        );
+        throw new Error ("No puedes añadir a un vendedor con este dni, ya esta en la base de datos")
       }
 
       const vendedor: ObjectId = await VendedoresCollection.insertOne({
@@ -38,11 +34,13 @@ export const Mutation = {
       });
 
       return {
-        id: vendedor.toString(),
+        _id: vendedor,
         name: args.name,
         dni: args.dni,
         coches: [],
       };
+      
+      
     } catch (error) {
       console.error(error);
       throw new Error(error);
@@ -56,22 +54,18 @@ export const Mutation = {
       asientos: number;
       precio: number;
     },
-  ): Promise<Coche> => {
+  ): Promise<CocheSchema> => {
     try {
-      if (
-        !/^[0-9]{1,4}(?!.*(LL|CH))[BCDFGHJKLMNPRSTVWXYZ]{3}$/.test(
-          args.matricula,
-        )
-      ) {
+      if (!/^[0-9]{1,4}(?!.*(LL|CH))[BCDFGHJKLMNPRSTVWXYZ]{3}$/.test(args.matricula,)) {
         throw new Error("Formato matricula incorrecto");
       }
 
       if (args.asientos <= 0) {
-        throw new Error("No puedes tener asientos negativos o 0 asientos");
+        throw new Error ("No puedes tener asientos negativos o 0 asientos")
       }
 
       if (args.precio <= 0) {
-        throw new Error("NO puedes tener un precio negativo o a 0");
+        throw new Error ("NO puedes tener un precio negativo o a 0");
       }
 
       const matriculaEncontrada: CocheSchema | undefined =
@@ -89,7 +83,7 @@ export const Mutation = {
         precio: args.precio,
       });
       return {
-        id: coche.toString(),
+        _id: coche,
         marca: args.marca,
         matricula: args.matricula,
         asientos: args.asientos,
@@ -104,7 +98,7 @@ export const Mutation = {
   crearConcesionario: async (
     _: unknown,
     args: { localidad: string },
-  ): Promise<Concesionario> => {
+  ): Promise<ConcesionarioSchema> => {
     try {
       const concesionario: ObjectId = await ConcesionariosCollection.insertOne({
         localidad: args.localidad,
@@ -112,7 +106,7 @@ export const Mutation = {
       });
 
       return {
-        id: concesionario.toString(),
+        _id: concesionario,
         localidad: args.localidad,
         vendedores: [],
       };
@@ -125,7 +119,7 @@ export const Mutation = {
   anadirCocheAUnVendedor: async (
     _: unknown,
     args: { idCoche: string; idVendedor: string },
-  ): Promise<Vendedor> => {
+  ): Promise<VendedorSchema> => {
     try {
       const encontrarCoche: CocheSchema | undefined = await CochesCollection
         .findOne({ _id: new ObjectId(args.idCoche) });
@@ -152,14 +146,14 @@ export const Mutation = {
         throw new Error("No se encuentra el id del coche o del vendedor");
       }
 
-      const encontrarCocheArray = encontrarVendedor.coches.find((coches) => {
-        return coches.toString() === args.idCoche;
-      });
+
+      const encontrarCocheArray= encontrarVendedor.coches.find( (coches)  => {
+        return coches.toString() === args.idCoche
+        
+      })
 
       if (encontrarCocheArray) {
-        throw new Error(
-          "Ya esta el id del coche en la base de datos de este vendedor",
-        );
+        throw new Error ("Ya esta el id del coche en la base de datos de este vendedor")
       }
 
       const vendedor = await VendedoresCollection.updateOne(
@@ -175,7 +169,7 @@ export const Mutation = {
 
       if (vendedor) {
         return {
-          id: encontrarVendedor._id.toString(),
+          _id: encontrarVendedor._id,
           name: encontrarVendedor.name,
           dni: encontrarVendedor.dni,
           coches: encontrarVendedor.coches,
@@ -184,14 +178,6 @@ export const Mutation = {
         throw new Error("NO se ha podido modificar al vendedor");
       }
 
-      /*return {
-          id: args.idVendedor,
-        }*/
-
-      /*const vendedor = await VendedoresCollection.updateOne (
-                {_id: new ObjectId (args.idVendedor)},
-                { $push: { coches: new ObjectId(coches._id)}}
-            );*/
     } catch (error) {
       console.error(error);
       throw new Error(error);
@@ -201,7 +187,7 @@ export const Mutation = {
   anadirVendedorAUnConcesionario: async (
     _: unknown,
     args: { idConcesionario: string; idVendedor: string },
-  ): Promise<Concesionario> => {
+  ): Promise<ConcesionarioSchema> => {
     try {
       const encontrarConcesionario: ConcesionarioSchema | undefined =
         await ConcesionariosCollection.findOne({
@@ -230,18 +216,17 @@ export const Mutation = {
         );
       }
 
+      
       // Para que no se repita el id en el array vendedor
-      const encontrarVendedorArray = encontrarConcesionario.vendedores.find(
-        (vendedor) => {
-          return vendedor.toString() === args.idVendedor;
-        },
-      );
+      const encontrarVendedorArray= encontrarConcesionario.vendedores.find( (vendedor)  => {
+        return vendedor.toString() === args.idVendedor
+        
+      })
 
       if (encontrarVendedorArray) {
-        throw new Error(
-          "Ya esta el id del vendedor en la base de datos de este concesionario",
-        );
+        throw new Error ("Ya esta el id del vendedor en la base de datos de este concesionario")
       }
+
 
       const concesionario = await ConcesionariosCollection.updateOne(
         { _id: new ObjectId(args.idConcesionario) },
@@ -256,13 +241,14 @@ export const Mutation = {
 
       if (concesionario) {
         return {
-          id: encontrarConcesionario._id.toString(),
+          _id: encontrarConcesionario._id,
           localidad: encontrarConcesionario.localidad,
           vendedores: encontrarConcesionario.vendedores,
         };
       } else {
         throw new Error("NO se ha podido modificar al vendedor");
       }
+      
     } catch (error) {
       console.error(error);
       throw new Error(error);

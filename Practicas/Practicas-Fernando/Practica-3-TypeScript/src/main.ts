@@ -1,23 +1,27 @@
 import { Application, Router } from "oak";
-import { deleteUser } from "./resolvers/delete.ts";
-import { getBooks, getUser } from "./resolvers/get.ts";
-import { addUser, addBook, addAuthor } from "./resolvers/post.ts";
-import { updateCart } from "./resolvers/put.ts";
+
+import { postUsers } from "./resolvers/postUser.ts";
+import { postAuthors } from "./resolvers/postAuthor.ts";
+import { postBooks } from "./resolvers/postBook.ts";
+import { deleteUser } from "./resolvers/deleteUser.ts";
+import { updateCart } from "./resolvers/putCart.ts";
+import { getBooks } from "./resolvers/getBooks.ts";
+import { getUser } from "./resolvers/getUser.ts";
 
 const router = new Router();
 
 router
-  .post("/addUser", addUser)
-  .post("/addBook", addBook)
-  .post("/addAuthor", addAuthor)
+  .post("/addUser", postUsers)
+  .post("/addAuthor", postAuthors)
+  .post("/addBook/:id", postBooks)
   .delete("/deleteUser", deleteUser)
-  .put("/updateCart", updateCart)
-  .get("/getUser/:id", getUser)
+  .put("/updateCart/:id_user/:id_book", updateCart)
   .get("/getBooks", getBooks)
+  .get("/getUser/:id", getUser)
 
 const app = new Application();
 
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-await app.listen({ port: 6000 });
+await app.listen({ port: 7777 });

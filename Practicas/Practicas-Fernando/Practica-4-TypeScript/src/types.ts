@@ -4,7 +4,7 @@ export type Vendedor = {
   id: string;
   name: string;
   dni: string;
-  coches: Coche[];
+  coches: ObjectId[];
 };
 
 export type Coche = {
@@ -18,5 +18,5 @@ export type Coche = {
 export type Concesionario = {
   id: string;
   localidad: string;
-  vendedores: Vendedor[];
+  vendedores: ObjectId[];
 };

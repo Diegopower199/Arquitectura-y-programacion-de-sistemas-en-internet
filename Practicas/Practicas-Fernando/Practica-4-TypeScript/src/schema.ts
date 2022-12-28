@@ -40,4 +40,3 @@ type Mutation {
   anadirVendedorAUnConcesionario(idVendedor: String!, idConcesionario: String!): Concesionario! 
 }
 `;
-

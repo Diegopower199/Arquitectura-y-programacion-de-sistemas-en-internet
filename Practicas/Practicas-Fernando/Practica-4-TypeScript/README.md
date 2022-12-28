@@ -1,4 +1,7 @@
-# Practica4
+Practica 4 realizada por Guillermo Ariño y Diego González
+
+Enunciado de la Practica 4:
+
 
 Para esta tercera práctica se pide que desarrolléis una API en GraphQL para un concesionario de coches. 
 Se deberá crear un .env con los siguientes campos

@@ -1,7 +1,6 @@
 import { MongoClient, Database } from "mongo";
-import { UserSchema, BooksSchema, AuthorSchema } from "./schema.ts";
-
 import { config } from "std/dotenv/mod.ts";
+import { AuthorSchema, BooksSchema, UserSchema } from "./schemas.ts";
 
 await config({ export: true, allowEmptyValues: true });
 
@@ -10,13 +9,6 @@ const connectMongoDB = async (): Promise<Database> => {
   const mongo_pwd = Deno.env.get("MONGO_PWD");
   const db_name = Deno.env.get("DB_NAME");
   const mongo_uri = Deno.env.get("MONGO_URI");
-
-  if (!mongo_usr || !mongo_pwd || !db_name || !mongo_uri) {
-    throw new Error(
-      "Missing environment variables, check env.sample for creating .env file"
-    );
-  }
-
   const mongo_url = `mongodb+srv://${mongo_usr}:${mongo_pwd}@${mongo_uri}/${db_name}?authMechanism=SCRAM-SHA-1`;
 
   const client = new MongoClient();
@@ -26,8 +18,8 @@ const connectMongoDB = async (): Promise<Database> => {
 };
 
 const db = await connectMongoDB();
-console.log(`MongoDB ${db.name} connected`);
+console.info(`MongoDB ${db.name} connected`);
 
-export const UserCollection = db.collection<UserSchema>("Users");
 export const BooksCollection = db.collection<BooksSchema>("Books");
-export const AuthorsCollection = db.collection<AuthorSchema>("Authors");
+export const UserCollection = db.collection<UserSchema>("Users");
+export const AuthorCollection = db.collection<AuthorSchema>("Authors");
