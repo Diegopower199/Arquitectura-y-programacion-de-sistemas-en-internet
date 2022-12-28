@@ -98,9 +98,12 @@ export const Mutation = {
           _id: new ObjectId(user.id),
         });
 
+
       if (!encontrarUsuario) {
         throw new Error("User does not exist");
       }
+
+      await UsuarioCollection.deleteOne({_id: encontrarUsuario._id})
 
       return {
         _id: encontrarUsuario?._id,
@@ -177,3 +180,4 @@ export const Mutation = {
     }
   },
 };
+
