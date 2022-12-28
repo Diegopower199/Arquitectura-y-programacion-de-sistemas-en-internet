@@ -1,50 +1,61 @@
+3 Practica Arquitectura 
 
-FAN XU Y CARLOS BERMUDEZ
+Para esta tercera práctica se pide que desarrolléis una API REST para una librería. 
+Se deberá crear un .env con los siguientes campos
 
-Ejemplos para el postman:
+      - URL_MONGO = con la url al servidor de mongo
+      - PORT = con el puerto para que corra el servidor
 
--addUser-
-URL --> localhost:7777/addUser
-Body:
-{
-  "name": "Fan",
-  "email": "fan@alumnos.nebrija.es",
-  "password": 14323
-}
 
--addAuthor-
-URL --> localhost:7777/addAuthor
-Body:
-{
-  "name": "Carlos"
-}
+NO se puede subir el .env al repositorio, en este caso se deberá subir un .env.sample
+La base de datos debera ser OBLIGATORIAMENTE con MongoDB y tendra las siguientes colecciones:
 
--addBook-
-URL --> localhost:7777/addBook/638cd25cecc75af14d2c0675
-Body:
-{
-  "title": "Don Quijote",
-  "author": "Cervantes",
-  "pages": 123
-}
-Nota: el /:id es el id del autor del libro que ha escrito el libro que queremos crear.
+      - User:
+          - name
+          - email
+          - password (debe estar cifrada)
+          - createdAt
+          - cart (array de ids de los libros)
 
--deleteUser-
-URL --> localhost:7777/deleteUser?_id=638ca87bffe14e27a34fbd73
-Nota: el id es el id que se ha guardado en mongo --> nosotros hemos utilizado el que se ha generado
-a nosotros, es posible que tengas que cambiar el valor del id del URL.
+      - Books:
+          - title
+          - author
+          - pages
+          - ISBN: creado usando una libreria que cree IDs únicos (ex: https://deno.land/std@0.161.0/uuid/README.md?source=)
 
--updateCart-
-URL --> localhost:7777/updateCart/638cb37e04c90acb3c84b0f8/638caa0bffe14e27a34fbd75
-Nota: .../updateCart/primerid que es el id del usuario /segundo id que es el id del libro
+      - Author:
+          - name
+          - books (array de ids de los libros)
 
--getBooks-
-URL1 --> localhost:7777/getBooks
-URL2 --> localhost:7777/getBooks?page=1
-URL3 --> localhost:7777/getBooks?page=1&title=Margarita
-Nota: para que salga más books necesitas introducir más valores en el body de addBook.
 
--getUser-
-URL --> localhost:7777/getUser/638cb37e04c90acb3c84b0f8
-Nota: el id es el id que se ha guardado en mongo --> nosotros hemos utilizado el que se ha generado
-a nosotros, es posible que tengas que cambiar el valor del id del URL.
+Todas las colecciones usarán como ID el ID que genera Mongo
+Como endpoints debera tener lo siguientes
+
+    - addUser -> Post = añadirá un usuario a la bbdd
+        - name
+        - email
+        - password
+
+    - addAuthor -> Post = añadirá un autor a la bbdd
+        - name
+
+    - addBook -> Post = añadira un libro a la bbdd
+        - title
+        - author
+        - pages
+
+    - deleteUser -> Delete = eliminará un usuario
+        - _id (id mongo)
+
+    - updateCart -> Put = añadirá un libro al carrito
+        - id_book
+        - id_user
+
+    - getBooks -> Get = devolvera una lista paginada de como maximo 10 libros. Los parametros se deberan pasar por url.
+        - page: indicando la pagina que queremos (empezara por 0)
+        - title: campo opcional indicando el titulo que queremos 
+
+http://localhost:PORT/getBooks?page=1&title=prueba
+
+    - getUser/id -> Get = devolverá un usuario 
+        - se usuará el _id de Mongo
