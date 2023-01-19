@@ -21,7 +21,7 @@ export const getUser = async (context: GetUserContext) => {
         if (user) {
           const { _id, ...userWithoutId } = user as UserSchema;
           context.response.body = {
-            ...userWithoutId,
+            userWithoutId,
             id: _id.toString(),
           };
         } else {
