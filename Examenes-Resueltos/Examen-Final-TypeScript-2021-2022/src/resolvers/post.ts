@@ -42,7 +42,7 @@ export const startMatch = async (context: PostMatchContext) => {
 
     if (comprobarEquipo1?.finalizacion === false || comprobarEquipo2?.finalizacion === false) {
       context.response.body = "Un equipo esta ya en partido 1";
-      context.response.status = 442;
+      context.response.status = 400;
       return;
     }
 
@@ -56,7 +56,7 @@ export const startMatch = async (context: PostMatchContext) => {
 
     if (comprobarEquipo1?.finalizacion === false || comprobarEquipo2?.finalizacion === false) {
       context.response.body = "Un equipo esta ya en partido 2";
-      context.response.status = 442;
+      context.response.status = 400;
       return;
     }
 
