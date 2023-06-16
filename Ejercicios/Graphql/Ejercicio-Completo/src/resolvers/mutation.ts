@@ -71,6 +71,8 @@ export const Mutation = {
                 }
             });
 
+            
+
             const authorCreate: ObjectId = await AuthorCollection.insertOne({
                 name: name,
                 lang: lang,
@@ -115,13 +117,38 @@ export const Mutation = {
                 throw new Error ("No existe ese id de Press House")
             }
 
+            // Actualizar en press house y author los nuevos libros que pertenecen en el array de books
             
             const bookCreate: ObjectId = await BookCollection.insertOne({
                 title: title,
                 author: new ObjectId(author),
                 pressHouse: new ObjectId(pressHouse),
                 year: year,
-            })
+            });
+
+
+            // Estos dos await los hago para actualizar en los dos tipos estos valores borrados 
+            await PressHouseCollection.updateOne(
+                {_id: new ObjectId(pressHouse)},
+                { 
+                    $push: {
+                        books: {
+                            $each: [bookCreate]
+                        },
+                    },
+                }
+            );
+
+            await AuthorCollection.updateOne(
+                {_id: new ObjectId(pressHouse)},
+                { 
+                    $push: {
+                        books: {
+                            $each: [bookCreate]
+                        },
+                    },
+                }
+            );
 
             return {
                 _id: bookCreate,
@@ -177,6 +204,8 @@ export const Mutation = {
                 _id: new ObjectId(id),
             });
 
+            
+
             return {
                 _id: authorEncontrada._id,
                 name: authorEncontrada.name,
@@ -203,6 +232,24 @@ export const Mutation = {
             const bookDelete = await BookCollection.deleteOne({
                 _id: new ObjectId(id),
             });
+
+            await PressHouseCollection.updateOne(
+                {_id: bookEncontrada.pressHouse},
+                { $pull: {
+                    books: bookEncontrada
+                }}
+            );
+
+            await AuthorCollection.updateOne(
+                { _id: bookEncontrada.author},
+                { $pull: {
+                    books: bookEncontrada
+                }}
+            )
+
+
+
+            console.log(bookEncontrada.pressHouse.toString())
 
             return {
                 _id: bookEncontrada._id,
