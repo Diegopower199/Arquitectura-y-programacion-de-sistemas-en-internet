@@ -1,7 +1,7 @@
 import { Collection, Database, MongoClient } from "mongo";
 
 import { config } from "std/dotenv/mod.ts";
-import { AuthorSchema, BookSchema, PressHouseSchema } from "./schema.ts";
+import { AuthorSchema, BookSchema, PressHouseSchema, UserSchema } from "./schema.ts";
 
 
 await config({ export: true, allowEmptyValues: true });
@@ -28,5 +28,7 @@ const db = await connectMongoDB();
 console.info(`MongoDB ${db.name} connected`);
 
 export const PressHouseCollection: Collection<PressHouseSchema> = db.collection<PressHouseSchema>("Press-Houses");
-export const AuthorCollection: Collection<AuthorSchema> = db.collection<AuthorSchema>("Authors")
-export const BookCollection: Collection<BookSchema> = db.collection<BookSchema>("Books")
+export const AuthorCollection: Collection<AuthorSchema> = db.collection<AuthorSchema>("Authors");
+export const BookCollection: Collection<BookSchema> = db.collection<BookSchema>("Books");
+
+export const UsersCollection: Collection<UserSchema> = db.collection<UserSchema>("Users")

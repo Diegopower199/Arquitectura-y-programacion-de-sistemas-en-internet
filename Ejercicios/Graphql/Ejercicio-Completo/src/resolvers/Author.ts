@@ -4,7 +4,8 @@ import { AuthorSchema, BookSchema } from "../db/schema.ts";
 
 export const Author = {
     _id: (parent: AuthorSchema): string => parent._id.toString(),
-    books: async(parent: AuthorSchema,): Promise<BookSchema[]> => {
+    
+    books: async (parent: AuthorSchema,): Promise<BookSchema[]> => {
         try {
             return await BookCollection.find({
                 _id: {

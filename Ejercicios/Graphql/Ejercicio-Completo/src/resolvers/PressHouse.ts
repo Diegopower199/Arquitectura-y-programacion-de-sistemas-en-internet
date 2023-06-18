@@ -5,7 +5,7 @@ import { BookSchema, PressHouseSchema } from "../db/schema.ts";
 export const PressHouse = {
     _id: (parent: PressHouseSchema): string => parent._id.toString(),
 
-    books: async(parent: PressHouseSchema,): Promise<BookSchema[]> => {
+    books: async (parent: PressHouseSchema,): Promise<BookSchema[]> => {
         try {
             return await BookCollection.find({
                 _id: {

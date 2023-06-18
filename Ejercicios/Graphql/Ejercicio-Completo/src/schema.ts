@@ -3,27 +3,48 @@ import { gql } from "graphql_tag";
 export const typeDefs = gql`
 
 type PressHouse {
-    _id: ID!,
-    name: String!,
-    web: String!,
-    country: String!,
+    _id: ID!
+    name: String!
+    web: String!
+    country: String!
     books: [Book!]!
 }
 
 type Author {
-    _id: ID!,
-    name: String!,
-    lang: String!,
+    _id: ID!
+    name: String!
+    lang: String!
     books: [Book!]!
 }
 
 type Book {
-    _id: ID!,
-    title: String!,
-    author: ID!,
-    pressHouse: ID!,
+    _id: ID!
+    title: String!
+    author: ID!
+    pressHouse: ID!
     year: Int!
 } 
+
+enum TipoUsuario {
+    REGISTRADO
+    MODO_INVITADO
+}
+
+type User {
+    _id: ID!
+    name: String!
+    surname: String!
+    dni: String!
+    birthDate: String!
+    dateCreate: String!
+    tipoUsuario: TipoUsuario!
+    username: String!
+    password: String
+    token: String
+    autoresQueSigue: [Author!]!
+    librosQueTiene: [Book!]!
+    librosQueLeGustariaTener: [Book!]!
+}
 
 type Query {
     books: [Book!]!
@@ -35,6 +56,7 @@ type Query {
     booksWithId (ids: [ID!]!): [Book!]!
     authorsWithId (ids: [ID!]!): [Author!]!
     pressHousesWithId (ids: [ID!]!): [PressHouse!]!
+    
 }
 
 type Mutation {
@@ -44,5 +66,10 @@ type Mutation {
     deletePressHouse(id: ID!): PressHouse!
     deleteAuthor(id: ID!): Author!
     deleteBook(id: ID!): Book!
+
+    updatePressHouse (idPressHouse: ID!, name: String, web: String!, country: String!): PressHouse!
+    updateBooksMore2000: Int!
+    updateTitleBook (title: String!, titleNew: String!): Book!
+    updateAuthorOfTheBook (authorDelete: ID!, authorAdd: ID!, title: String!): Book!
 }
 `;

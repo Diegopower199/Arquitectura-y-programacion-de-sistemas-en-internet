@@ -36,7 +36,7 @@ export const Query = {
             _id: author._id,
             name: author.name,
             lang: author.lang,
-            books: author.books
+            books: author.books.map((book) => new ObjectId(book))
         }));
     } 
     catch (e) {
@@ -56,7 +56,7 @@ export const Query = {
             name: pressHouse.name,
             web: pressHouse.web,
             country: pressHouse.country,
-            books: pressHouse.books,
+            books: pressHouse.books.map((book) => new ObjectId(book)),
         }));
 
     } catch (e) {
@@ -102,7 +102,7 @@ export const Query = {
           _id: authorEncontrados._id,
           name: authorEncontrados.name,
           lang: authorEncontrados.lang,
-          books: authorEncontrados.books,
+          books: authorEncontrados.books.map((book) => new ObjectId(book)),
         }
     } 
     catch (e) {
@@ -125,7 +125,7 @@ export const Query = {
           name: pressHouseEncontrados.name,
           web: pressHouseEncontrados.web,
           country: pressHouseEncontrados.country,
-          books: pressHouseEncontrados.books,
+          books: pressHouseEncontrados.books.map((book) => new ObjectId(book)),
         }
         
     } 
@@ -188,7 +188,7 @@ export const Query = {
         _id: author._id,
         name: author.name,
         lang: author.lang,
-        books: author.books
+        books: author.books.map((book) => new ObjectId(book)),
       }));
     }
 
@@ -219,9 +219,11 @@ export const Query = {
         name: pressHouse.name,
         web: pressHouse.web,
         country: pressHouse.country,
-        books: pressHouse.books,
+        books: pressHouse.books.map((book) => new ObjectId(book)),
     }));
     }
+
+    
 
     catch(error) {
       throw new Error (error);
