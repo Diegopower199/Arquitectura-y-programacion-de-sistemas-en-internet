@@ -11,14 +11,15 @@ type GetBooksContext = RouterContext<
 >;
 
 export const getBooks = async (context: GetBooksContext) => {
- try{ const params = getQuery(context, { mergeParams: true });
+ try{ 
+    const params = getQuery(context, { mergeParams: true });
     const limit = 10;
     const total = await BooksCollection.count();
     const pages = Math.ceil(total / limit);
     const page = params.page ? parseInt(params.page) : 1;
     //get by title
     if (params.page && params.title) {
-      const books = await BooksCollection.find({
+      const books: BooksSchema[] = await BooksCollection.find({
         title: params.title,
       }).limit(limit)
         .skip((page - 1) * limit)
@@ -35,6 +36,7 @@ export const getBooks = async (context: GetBooksContext) => {
         .skip((page - 1) * limit)
         .toArray();
         context.response.body = {
+
           books,
           page,
           pages,

@@ -19,7 +19,9 @@ export const getUser = async (context: GetUserContext) => {
         });
   
         if (user) {
+          console.log(typeof user.cart)
           const { _id, ...userWithoutId } = user as UserSchema;
+          console.log(userWithoutId.name)
           context.response.body = {
             userWithoutId,
             id: _id.toString(),
