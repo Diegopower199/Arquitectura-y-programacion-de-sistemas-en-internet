@@ -14,9 +14,13 @@ type GetUserContext = RouterContext<
 
 export const getUserWithParameters = async (context: GetUserContext) => {
   try {
-    const parametro: string = context.params.parametro;
+    const params = getQuery(context, { mergeParams: true });
+    const {parametro} = params;
+    console.log(parametro);
+    
+    //const parametro: string = context.params.parametro;
     const userEncontrado: UserSchema | undefined = await UsersCollection.findOne({
-      $or: [ {dni: parametro}, {email: parametro}, {iban: parametro}, {telefono: parametro}, {_id: new ObjectId(parametro)}]
+      $or: [ {dni: parametro}, {email: parametro}, {iban: parametro}, {telefono: parametro}]
     });
 
     if (!userEncontrado) {

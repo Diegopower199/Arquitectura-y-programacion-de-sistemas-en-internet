@@ -1,9 +1,9 @@
 import { getQuery } from "oak/helpers.ts";
 import { Database, ObjectId } from "mongo";
 import { RouterContext } from "oak/router.ts";
-import { UsersCollection } from "../db/dbconnection.ts";
-import { UserSchema } from "../db/schema.ts";
-import { User } from "../types.ts";
+import { TransactionsCollection, UsersCollection } from "../db/dbconnection.ts";
+import { TransactionSchema, UserSchema } from "../db/schema.ts";
+import { Transactions, User } from "../types.ts";
 
 type PostUserContext = RouterContext<
   "/addUser",
@@ -11,11 +11,6 @@ type PostUserContext = RouterContext<
   Record<string, any>
 >;
 
-type PostTransactionContext = RouterContext<
-  "/addTransaction",
-  Record<string | number, string | undefined>,
-  Record<string, any>
->;
 
 export const postUser = async (context: PostUserContext) => {
   try {
@@ -69,21 +64,24 @@ export const postUser = async (context: PostUserContext) => {
       return;
     }
 
-    const newUser: Partial<User> = {
+
+    const createUserId = await UsersCollection.insertOne({
       nombre: value.nombre,
       apellidos: value.apellidos,
       dni: value.dni,
       telefono: value.telefono,
       email: value.email,
       iban: ibanAleatorio
-    }
+    });
 
-    const id: ObjectId = await UsersCollection.insertOne(newUser as UserSchema);
-    newUser.id = id.toString();
-    const {_id, ...newUserWithoutId} = newUser as UserSchema;
     context.response.body = {
-      _id: _id,
-      newUserWithoutId,
+      _id: createUserId,
+      nombre: value.nombre,
+      apellidos: value.apellidos,
+      dni: value.dni,
+      telefono: value.telefono,
+      email: value.email,
+      iban: ibanAleatorio
     };
     context.response.status = 200;
 
@@ -94,8 +92,39 @@ export const postUser = async (context: PostUserContext) => {
   }
 };
 
+type PostTransactionContext = RouterContext<
+  "/addTransaction",
+  Record<string | number, string | undefined>,
+  Record<string, any>
+>;
+
 export const postTransaction = async (context: PostTransactionContext) => {
   try {
+    const result = context.request.body({ type: "json" });
+    const value = await result.value;
+    if (!value.id_sender || !value.id_reciber || !value.amount) {
+      context.response.body = { msg: "Falta el parametro de id_sender, id_reciber o amount en el json"};
+      context.response.status = 404;
+      return;
+    }
+
+    const { id_sender, id_reciber, amount } = value;
+
+    const createTransaction: ObjectId = await TransactionsCollection.insertOne({
+      id_reciber: new ObjectId(id_reciber),
+      id_sender: new ObjectId(id_sender),
+      amount: amount,
+    });
+
+    context.response.body = {
+      _id: createTransaction,
+      id_reciber: id_reciber,
+      id_sender: id_sender,
+      amount: amount
+    };
+    context.response.status = 200;
+
+   
   } catch (error) {
     console.log(error);
     context.response.status = 500;

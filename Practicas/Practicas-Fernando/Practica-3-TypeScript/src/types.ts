@@ -1,4 +1,4 @@
-import { ObjectId } from "https://deno.land/x/web_bson@v0.2.5/mod.ts";
+import { ObjectId } from "mongo";
 
 export type Books = {
     title: string;
