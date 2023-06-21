@@ -181,7 +181,7 @@ export const Query = {
       });
 
       console.log("Authors PROMESAS (Abajo lo que hago es esperar a que se completen): ", authorsPromesas)
-
+  
       const authorsEncontrados = await Promise.all(authorsPromesas);
 
       return authorsEncontrados.map( (author: AuthorSchema) => ({

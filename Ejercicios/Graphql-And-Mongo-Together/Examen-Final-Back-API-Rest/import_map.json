@@ -1,8 +1,9 @@
 {
   "imports": {
-    "std/": "https://deno.land/std@0.171.0/",
-    "graphql_tag": "https://deno.land/x/graphql_tag@0.0.1/mod.ts",
-    "gql": "https://deno.land/x/gql@1.1.2/mod.ts",
-    "graphql_tools": "https://deno.land/x/graphql_tools@0.0.3/mod.ts"
+    "oak": "https://deno.land/x/oak@v11.1.0/mod.ts",
+    "oak/": "https://deno.land/x/oak@v11.1.0/",
+    "std/": "https://deno.land/std@0.161.0/"
   }
 }
+
+
