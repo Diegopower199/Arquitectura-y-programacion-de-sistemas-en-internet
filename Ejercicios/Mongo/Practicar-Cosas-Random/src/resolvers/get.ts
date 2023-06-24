@@ -52,6 +52,10 @@ export const getPressHouses = async (context: GetPressHousesContext) => {
   try {
     const pressHouses: PressHouseSchema[] = await PressHousesCollection.find({}).toArray(); 
 
+    const pressHousesPromesas = pressHouses.map( async (pressHouse) => {
+      const pressHouseBook: BookSchema[] | undefined = await BooksCollection.find({books: pressHouse.books}).toArray();
+    })
+
     context.response.body = pressHouses;
     context.response.status = 200;
   } 

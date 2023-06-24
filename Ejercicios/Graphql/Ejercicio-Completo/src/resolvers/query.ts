@@ -5,7 +5,8 @@ import { AuthorSchema } from "../db/schema.ts";
 import { BookSchema } from "../db/schema.ts";
 
 export const Query = {
-  books: async (_: unknown, args: {}): Promise<BookSchema[]> => {
+  // deno-lint-ignore ban-types
+  books: async (_: unknown, _args: {}): Promise<BookSchema[]> => {
     try {
       const booksEncontrados: BookSchema[] = await BookCollection.find({}).toArray();
 
@@ -24,7 +25,9 @@ export const Query = {
       throw new Error(e);
     }
   },
-  authors: async (_: unknown, args: {}): Promise<AuthorSchema[]> => {
+
+  // deno-lint-ignore ban-types
+  authors: async (_: unknown, _args: {}): Promise<AuthorSchema[]> => {
     try {
         const authorsEncontrados: AuthorSchema[] = await AuthorCollection.find({}).toArray();
 
@@ -43,7 +46,8 @@ export const Query = {
       throw new Error(e);
     }
   },
-  presshouses: async (_: unknown, args: {}): Promise<PressHouseSchema[]> => {
+  // deno-lint-ignore ban-types
+  presshouses: async (_: unknown, _args: {}): Promise<PressHouseSchema[]> => {
     try {
         const pressHouseEncontrados: PressHouseSchema[] = await PressHouseCollection.find({}).toArray();
 
@@ -183,6 +187,7 @@ export const Query = {
       console.log("Authors PROMESAS (Abajo lo que hago es esperar a que se completen): ", authorsPromesas)
   
       const authorsEncontrados = await Promise.all(authorsPromesas);
+      // Lo de arriba lo hago para comprobar que todos los id se encuentran en la base de datos
 
       return authorsEncontrados.map( (author: AuthorSchema) => ({
         _id: author._id,

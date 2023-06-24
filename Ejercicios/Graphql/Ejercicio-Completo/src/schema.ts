@@ -20,8 +20,8 @@ type Author {
 type Book {
     _id: ID!
     title: String!
-    author: ID!
-    pressHouse: ID!
+    author: Author!
+    pressHouse: PressHouse!
     year: Int!
 } 
 
