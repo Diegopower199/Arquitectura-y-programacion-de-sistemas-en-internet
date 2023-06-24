@@ -1,12 +1,18 @@
-import { ObjectId } from "mongo";
-import { Transactions, User } from "../types.ts";
+import { ObjectId } from "mongo"
+import { Author, Book, PressHouse } from "../types.ts";
 
-export type UserSchema = Omit<User, "id"> & {
+export type PressHouseSchema = Omit<PressHouse, "id" | "books"> & {
     _id: ObjectId,
-};
+    books: ObjectId[],
+}
 
-export type TransactionSchema = Omit<Transactions, "id" | "id_sender" | "id_reciber"> & {
+export type AuthorSchema = Omit<Author, "id" | "books"> & {
     _id: ObjectId,
-    id_sender: ObjectId,
-    id_reciber: ObjectId,
+    books: ObjectId[],
+}
+
+export type BookSchema = Omit<Book, "id" | "author" | "pressHouse"> & {
+    _id: ObjectId,
+    author: ObjectId,
+    pressHouse: ObjectId,
 }

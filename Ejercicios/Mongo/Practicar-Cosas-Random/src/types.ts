@@ -1,17 +1,23 @@
 
-export type User = {
+export type PressHouse = {
     id: string,
-    email: string,
-    nombre: string,
-    apellidos: string,
-    telefono: string,
-    dni: string,
-    iban: string,
+    name: string,
+    web: string,
+    country: string,
+    books: string[],
 }
 
-export type Transactions = {
+export type Author = {
     id: string,
-    id_sender: string,
-    id_reciber: string,
-    amount: number,
+    name: string,
+    lang: string,
+    books: string[],
+}
+
+export type Book = {
+    id: string,
+    title: string,
+    author: string,
+    pressHouse: string,
+    year: number,
 }

@@ -1,90 +1,48 @@
 import { getQuery } from "oak/helpers.ts";
 import { Database, ObjectId } from "mongo";
 import { RouterContext } from "oak/router.ts";
-import { TransactionsCollection, UsersCollection } from "../db/dbconnection.ts";
-import { TransactionSchema, UserSchema } from "../db/schema.ts";
-import { Transactions, User } from "../types.ts";
+import { AuthorsCollection, BooksCollection, PressHousesCollection } from "../db/dbconnection.ts";
+import { AuthorSchema, BookSchema, PressHouseSchema } from "../db/schema.ts";
 
-type PostUserContext = RouterContext<
-  "/addUser",
+type PostPressHouseContext = RouterContext<
+  "/addPressHouse",
   Record<string | number, string | undefined>,
   Record<string, any>
 >;
 
 
-export const postUser = async (context: PostUserContext) => {
+export const postPressHouse = async (context: PostPressHouseContext) => {
   try {
-    const result = context.request.body({ type: "json" });
-    const value = await result.value;
+   const params = context.request.body({ type: "json" });
+   const value = await params.value;
 
-    if (!value?.nombre || !value?.apellidos || !value?.dni || !value?.telefono || !value?.email ) {
-      context.response.status = 400;
-      context.response.body = { msg: "Faltan datos" };
-      return;
-    }
+   const { name, web, country, books } = value;
+   const pressHouseEncontrar: PressHouseSchema | undefined = await PressHousesCollection.findOne({
+    name: name,
+    web: web,
+   });
 
-    if (!/^[0-9]{8}[A-Z]$/.test(value.dni)) {
-      context.response.body = "Formato DNI incorrecto";
-      context.response.status = 400;
-      return;
-    }
+   if (pressHouseEncontrar) {
+    context.response.body = { msg: "Ya existe la press house" };
+    context.response.status = 400;
+    return;
+   }
 
-    if (!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(value.email)) {
-      context.response.body = "Formato email incorrecto";
-      context.response.status = 400;
-      return;
-    }
+   const addPressHouse: ObjectId = await PressHousesCollection.insertOne({
+    name: name,
+    web: web,
+    country: country,
+    books: books,
+   });
 
-    if (!/^[0-9]{9}$/.test(value.telefono)) {
-      context.response.body = "Formato telefono incorrecto";
-      context.response.status = 400;
-      return;
-    }
-
-    const comprobarDNI: UserSchema | undefined = await UsersCollection.findOne({ 
-      dni: value.dni 
-    });
-
-    const comprobarTelefono: UserSchema | undefined = await UsersCollection.findOne({
-      telefono: value.telefono,
-    });
-
-    const comprobarEmail: UserSchema | undefined = await UsersCollection.findOne({
-      email: value.email,
-    });
-
-    const ibanAleatorio: string = "ES21" + Math.floor(Math.random() * 1000000000000000000000);
-    const comprobarIban: UserSchema | undefined = await UsersCollection.findOne({
-      iban: ibanAleatorio, 
-    });
-
-    if (comprobarDNI || comprobarTelefono || comprobarEmail || comprobarIban) {
-      context.response.status = 400;
-      context.response.body = { msg: "El usuario ya existe" };
-      return;
-    }
-
-
-    const createUserId = await UsersCollection.insertOne({
-      nombre: value.nombre,
-      apellidos: value.apellidos,
-      dni: value.dni,
-      telefono: value.telefono,
-      email: value.email,
-      iban: ibanAleatorio
-    });
-
-    context.response.body = {
-      _id: createUserId,
-      nombre: value.nombre,
-      apellidos: value.apellidos,
-      dni: value.dni,
-      telefono: value.telefono,
-      email: value.email,
-      iban: ibanAleatorio
-    };
-    context.response.status = 200;
-
+   context.response.body = {
+    _id: addPressHouse,
+    name: name,
+    web: web,
+    country: country,
+    books: books,
+   };
+   context.response.status = 200;
   } 
   catch (error) {
     console.log(error);
@@ -92,40 +50,109 @@ export const postUser = async (context: PostUserContext) => {
   }
 };
 
-type PostTransactionContext = RouterContext<
-  "/addTransaction",
+type PostAuthorContext = RouterContext<
+  "/addAuthor",
   Record<string | number, string | undefined>,
   Record<string, any>
 >;
 
-export const postTransaction = async (context: PostTransactionContext) => {
+export const postAuthor = async (context: PostAuthorContext) => {
   try {
     const result = context.request.body({ type: "json" });
     const value = await result.value;
-    if (!value.id_sender || !value.id_reciber || !value.amount) {
-      context.response.body = { msg: "Falta el parametro de id_sender, id_reciber o amount en el json"};
-      context.response.status = 404;
+
+    const { name, lang, books } = value;
+    const authorEncontrar: AuthorSchema | undefined = await AuthorsCollection.findOne({
+      name: name,
+    });
+    
+    if (authorEncontrar) {
+      context.response.body = { msg: "Ese author ya existe" };
+      context.response.status = 400;
       return;
     }
 
-    const { id_sender, id_reciber, amount } = value;
-
-    const createTransaction: ObjectId = await TransactionsCollection.insertOne({
-      id_reciber: new ObjectId(id_reciber),
-      id_sender: new ObjectId(id_sender),
-      amount: amount,
+    const addAuthor: ObjectId = await AuthorsCollection.insertOne({
+      name: name,
+      lang: lang,
+      books: books,
     });
 
     context.response.body = {
-      _id: createTransaction,
-      id_reciber: id_reciber,
-      id_sender: id_sender,
-      amount: amount
-    };
-    context.response.status = 200;
+      _id: addAuthor,
+      name: name,
+      lang: lang,
+      books: books,
+    }
+  } 
+  catch (error) {
+    console.log(error);
+    context.response.status = 500;
+  }
+};
 
+
+type PostBookContext = RouterContext<
+  "/addBook",
+  Record<string | number, string | undefined>,
+  Record<string, any>
+>;
+
+export const postBook = async (context: PostBookContext) => {
+  try {
+   const params = context.request.body({ type: "json" });
+   const value = await params.value;
+
+   const { title, author, pressHouse, year } = value;
+
+   const bookEncontrado: BookSchema | undefined = await BooksCollection.findOne({
+    title: title,
+   });
+
+   if (bookEncontrado) {
+    context.response.body = { msg: "Ese libro ya existe" };
+    context.response.status = 400;
+    return;
+   }
+
+   const authorEncontrar: AuthorSchema | undefined = await AuthorsCollection.findOne({
+    _id: new ObjectId(author),
+   })
+
+   if (!authorEncontrar) {
+    context.response.body = { msg: "No existe la id del author introducido"};
+    context.response.status = 400;
+    return;
+   }
+
+   const pressHouseEncontrar: PressHouseSchema | undefined = await PressHousesCollection.findOne({
+    _id: new ObjectId(pressHouse),
+   });
    
-  } catch (error) {
+   if (!pressHouseEncontrar) {
+    context.response.body = { msg: "No existe la id del press house introducido" };
+    context.response.status = 400;
+    return;
+   }
+
+   const addBook: ObjectId = await BooksCollection.insertOne({
+    title: title,
+    author: author,
+    pressHouse: pressHouse,
+    year: year,
+   });
+
+   context.response.body = {
+    _id: addBook,
+    title: title,
+    author: author,
+    pressHouse: pressHouse,
+    year: year, 
+   }
+   context.response.status = 200;
+
+  } 
+  catch (error) {
     console.log(error);
     context.response.status = 500;
   }

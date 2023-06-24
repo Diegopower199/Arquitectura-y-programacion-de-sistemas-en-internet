@@ -67,3 +67,5 @@ export const getCharacterByIds = async (context: GetCharacterConIdsContext)  => 
   }
 }
 
+.get("/characterByName/:name", getCharacterByName)
+      .get("/charactersByName/:name", getCharactersByName)

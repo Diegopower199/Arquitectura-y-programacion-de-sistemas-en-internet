@@ -1,9 +1,8 @@
 import { Application, Context, Router } from "oak";
 
 import { config } from "std/dotenv/mod.ts";
-import { postTransaction, postUser } from "./resolvers/post.ts";
-import { getUserWithParameters } from "./resolvers/get.ts";
-import { DeleteTransaction, deleteUserConEmail } from "./resolvers/delete.ts";
+import { getAuthorWithId, getAuthors, getBooks, getBooksWithId, getPressHouseWithId, getPressHouses } from "./resolvers/get.ts";
+import { postAuthor, postBook, postPressHouse } from "./resolvers/post.ts";
 await config({ export: true, allowEmptyValues: true });
 
 const port = Number(Deno.env.get("PORT"));
@@ -12,14 +11,23 @@ const port = Number(Deno.env.get("PORT"));
 const router = new Router();
 
 
-router.get("/getUser/:parametro", getUserWithParameters)
-      .post("/addUser", postUser )
-      .post("/addTransaction", postTransaction)
-      .delete("/deleteUser/email", deleteUserConEmail)
-      .delete("/deleteTransaction/:id", DeleteTransaction)
-// .delete("/deleteTransaction/:id", DeleteTransaction)
+router.get("/books", getBooks)
+      .get("/authors", getAuthors)
+      .get("/presshouses", getPressHouses)
+      .get("/book/:id", getBooksWithId)
+      .get("/author/:id", getAuthorWithId)
+      .get("/presshouse/:id", getPressHouseWithId)
 
-// Asi se debe hacer -> router.delete("/deleteUser", deleteAlgoConID)
+
+router.post("/addPressHouse", postPressHouse)
+      .post("/addAuthor", postAuthor)
+      .post("/addBook", postBook)
+
+
+/*router.delete("/deletePressHouse/:id")
+      .delete("/deleteAuthor/:id", )
+      .delete("/deleteBook/:id", )*/
+
 
 
 const app = new Application();

@@ -30,6 +30,7 @@ export const postUsers = async (context: PostAddUserContext) => {
     });
     if (users) {
       context.response.status = 400;
+      context.response.body = { msg: "El usuario ya existe"}
       return;
 
     }
@@ -37,12 +38,14 @@ export const postUsers = async (context: PostAddUserContext) => {
     
     if (!isEmail(value.email)) {
       context.response.status = 400;
+      context.response.body = { msg: "Email incorrecto"}
       return;
     }
    
 
     if (!value?.name || !value?.email || !value?.password) {
       context.response.status = 400;
+      context.response.body = { msg: "Faltan datos"}
       return;
     }
     const user: Partial<User> = {

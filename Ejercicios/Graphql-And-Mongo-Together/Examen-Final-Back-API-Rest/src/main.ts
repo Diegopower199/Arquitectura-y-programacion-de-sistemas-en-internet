@@ -11,6 +11,8 @@ const router = new Router();
 
 router.get("/character/:id", getCharacter)
       .get("/charactersByIds/:ids", getCharacterByIds)
+      .get("/characterByName/:name", getCharacterByName)
+      .get("/charactersByName/:name", getCharactersByName)
 
       
 

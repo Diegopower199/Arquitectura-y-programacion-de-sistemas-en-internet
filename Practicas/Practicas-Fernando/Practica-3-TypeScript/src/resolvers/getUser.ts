@@ -19,6 +19,7 @@ export const getUser = async (context: GetUserContext) => {
         });
   
         if (user) {
+          console.log(user.created_at)
           const { _id, ...userWithoutId } = user as UserSchema;
           console.log(userWithoutId.name)
           context.response.body = {
