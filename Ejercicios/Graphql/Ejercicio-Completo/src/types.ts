@@ -3,14 +3,14 @@ export type PressHouse = {
     name: string,
     web: string,
     country: string,
-    books: string[]
+    books: Book[]
 }
 
 export type Author = {
     id: string,
     name: string,
     lang: string,
-    books: string[]
+    books: Book[]
 }
 
 export type Book = {

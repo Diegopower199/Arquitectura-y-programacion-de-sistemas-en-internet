@@ -1,6 +1,7 @@
 import { MongoClient, Database, Collection } from "mongo";
 
 import { config } from "std/dotenv/mod.ts";
+import { CocheSchema } from "./schema.ts";
 
 
 await config({ export: true, allowEmptyValues: true });
@@ -28,4 +29,4 @@ const connectMongoDB = async (): Promise<Database> => {
 const db = await connectMongoDB();
 console.log(`MongoDB ${db.name} connected`);
 
-//export const coleccion1: Collection<schema1> = db.collection<schema1>("");
+export const CocheCollection: Collection<CocheSchema> = db.collection<CocheSchema>("Coche");

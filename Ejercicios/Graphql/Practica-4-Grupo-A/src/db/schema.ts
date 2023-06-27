@@ -1,6 +1,7 @@
 import { ObjectId } from "mongo";
+import { Slot } from "../types.ts";
 
 
-/*export type Tipo1Schema = Omit<Tipo1, "id"> & {
+export type SlotSchema = Omit<Slot, "id"> & {
     _id: ObjectId,
-}*/
+}

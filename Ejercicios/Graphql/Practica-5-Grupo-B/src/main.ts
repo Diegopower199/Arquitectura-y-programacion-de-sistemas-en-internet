@@ -5,6 +5,7 @@ import { makeExecutableSchema } from "graphql_tools";
 import { config } from "std/dotenv/mod.ts";
 await config({ export: true, allowEmptyValues: true });
 
+
 import { Query } from "./resolvers/query.ts";
 import { Mutation } from "./resolvers/mutation.ts";
 import { typeDefs } from "./schema.ts";
@@ -26,6 +27,15 @@ const s = new Server({
       ? await GraphQLHTTP<Request>({
         schema: makeExecutableSchema({ resolvers, typeDefs }),
         graphiql: true,
+        context: (req) => {
+          const lang = req.headers.get("lang");
+          const token = req.headers.get("token")
+
+          return {
+            token: token,
+            lang: lang,
+          };
+        },
       })(req)
       : new Response("Not Found", { status: 404 });
   },

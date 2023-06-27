@@ -8,12 +8,10 @@ await config({ export: true, allowEmptyValues: true });
 import { Query } from "./resolvers/query.ts";
 import { Mutation } from "./resolvers/mutation.ts";
 import { typeDefs } from "./schema.ts";
-import { Enlazada } from "./resolvers/Enlazada.ts";
 
 const resolvers = {
   Query,
   Mutation,
-  Enlazada
 };
 
 const port = Number(Deno.env.get("PORT"));

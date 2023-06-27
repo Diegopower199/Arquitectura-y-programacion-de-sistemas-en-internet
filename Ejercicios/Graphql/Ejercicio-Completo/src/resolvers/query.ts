@@ -35,11 +35,20 @@ export const Query = {
             throw new Error ("No existe ningun author");
         }
 
+        /*
         return authorsEncontrados.map( (author: AuthorSchema) => ({
             _id: author._id,
             name: author.name,
             lang: author.lang,
             books: author.books.map((book) => new ObjectId(book))
+        }));*/
+
+        //return authorsEncontrados;
+        return authorsEncontrados.map( (author: AuthorSchema) => ({
+            _id: author._id,
+            name: author.name,
+            lang: author.lang,
+            books: author.books
         }));
     } 
     catch (e) {
@@ -79,6 +88,7 @@ export const Query = {
           throw new Error ("Libro con id no encontrado");
         }
 
+        
         return {
           _id: bookEncontrados._id,
           title: bookEncontrados.title,

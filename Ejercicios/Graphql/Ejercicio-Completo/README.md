@@ -1,5 +1,7 @@
 Recuperacion del año pasado back-end 
 
+En las querys si quiero devolver un BookSchema o un array de BookSchema por ejemplo, con que devuelva la variable es suficiente, no hace falta devolver todos los valores
+
 Voy a añadir varios querys y mutation
 
 Querys: 

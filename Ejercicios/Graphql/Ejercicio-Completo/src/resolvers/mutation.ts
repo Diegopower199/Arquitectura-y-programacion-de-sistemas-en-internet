@@ -336,6 +336,7 @@ export const Mutation = {
       const booksDelete: number = await BookCollection.deleteMany({
         year: {
           $lt: 2000,
+
         },
       });
 

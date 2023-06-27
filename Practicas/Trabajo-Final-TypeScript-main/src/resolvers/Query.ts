@@ -53,8 +53,16 @@ export const Query = {
 
       }
 
-      const comentarios = await ComentarioCollection.find({}).toArray();
-      return comentarios;
+      const comentarios: ComentariosSchema[] = await ComentarioCollection.find({}).toArray();
+
+      return comentarios.map( (comentario: ComentariosSchema) => ({
+        _id: comentario._id,
+        contenido: comentario.contenido,
+        creadorComentario: comentario.creadorComentario,
+        fechaCreacion: comentario.fechaCreacion,
+        postOrigen: comentario.postOrigen
+      }))      
+      //return comentarios;
     } 
     
     catch (e) {
