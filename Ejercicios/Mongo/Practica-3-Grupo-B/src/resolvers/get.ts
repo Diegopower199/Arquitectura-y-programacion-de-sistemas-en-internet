@@ -18,11 +18,19 @@ export const getBooks = async (context: GetBooksContext) => {
     const page = context.request.url.searchParams.get('page');
     const title = context.request.url.searchParams.get('title');
 
+
     if (page === null) {
       context.response.body = { msg: "Falta el parametro de page" };
       context.response.status = 400;
       return;
     }
+
+    else if (!Number.isInteger(Number(page))) {
+      context.response.body = { msg: "El parametro page no es tipo entero (number)" };
+      context.response.status = 400;
+      return;
+    }
+    
     else if (parseInt(page) < 0) {
       context.response.body = { msg: "El parametro page debe ser 0 o mas" };
       context.response.status = 400;

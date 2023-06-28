@@ -11,8 +11,9 @@ export type UserSchema = Omit<User, "id" | "cart"> & {
     cart: ObjectId[],
 }
 
-export type BookSchema = Omit<Book, "id"> & {
+export type BookSchema = Omit<Book, "id" | "author"> & {
     _id: ObjectId,
+    author: ObjectId
 }
 
 export type AuthorSchema = Omit<Author, "id" | "books"> & {

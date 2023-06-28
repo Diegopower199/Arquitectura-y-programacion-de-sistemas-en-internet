@@ -142,6 +142,32 @@ export const postBook = async (context: PostBookContext) => {
 
     const { title, author, pages  } = value;
 
+    if (typeof title !== "string") {
+      context.response.body = { msg: "La campo title no es de tipo string", };
+      context.response.status = 400;
+      return;
+    }
+
+    if (typeof author !== "string") {
+      context.response.body = { msg: "La campo author no es de tipo string", };
+      context.response.status = 400;
+      return;
+    }
+
+    const expresionRegularObjectId = /^[0-9a-fA-F]{24}$/;
+
+    if (author.match(expresionRegularObjectId) === null) { // No es un ObjectId
+      context.response.body = { msg: "El campo author no tiene el formato de ObjectId", };
+      context.response.status = 404;
+      return;
+    }
+
+    if (typeof pages !== "number" || !Number.isInteger(pages)) {
+      context.response.body = { msg: "El campo pages no es de tipo entero (number)", };
+      context.response.status = 400;
+      return;
+  }
+
     const bookExiste: BookSchema | undefined = await BooksCollection.findOne({
       title: title,
     });
@@ -171,7 +197,7 @@ export const postBook = async (context: PostBookContext) => {
 
     const addBook: ObjectId = await BooksCollection.insertOne({
       title: title,
-      author: author,
+      author: new ObjectId(author),
       pages: pages,
       ISBN: createISBN,
     })

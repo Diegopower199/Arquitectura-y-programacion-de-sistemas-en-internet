@@ -66,7 +66,7 @@ else if (telefonoValido.match(expresionRegularTelefono) === null) {
 ```
 
 
-## Expresion Regular Telefono
+## Expresion Regular ObjectId
 ```
 const expresionRegularObjectId = /^[0-9a-fA-F]{24}$/;
 

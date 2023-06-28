@@ -24,7 +24,31 @@ export const putUpdateCart = async (context: PutUpdateCartContext) => {
 
     const { id_book, id_user } = value;
 
-    
+    if (typeof id_book !== "string") {
+      context.response.body = { msg: "La campo id_book no es de tipo string", };
+      context.response.status = 400;
+      return;
+    }
+
+    if (typeof id_user !== "string") {
+      context.response.body = { msg: "La campo id_sender no es de tipo string", };
+      context.response.status = 400;
+      return;
+    }
+
+    const expresionRegularObjectId = /^[0-9a-fA-F]{24}$/;
+
+    if (id_book.match(expresionRegularObjectId) === null) { // No es un ObjectId
+      context.response.body = { msg: "El campo id_book no tiene el formato de ObjectId", };
+      context.response.status = 404;
+      return;
+    }
+
+    if (id_user.match(expresionRegularObjectId) === null) { 
+      context.response.body = { msg: "El campo id_user no tiene el formato de ObjectId", };
+      context.response.status = 404;
+      return;
+    }
 
     const bookExiste: BookSchema | undefined = await BooksCollection.findOne({
       _id: new ObjectId(id_book)
