@@ -64,3 +64,19 @@ else if (telefonoValido.match(expresionRegularTelefono) === null) {
 	console.log("Telefono invalido")
 }
 ```
+
+
+## Expresion Regular Telefono
+```
+const expresionRegularObjectId = /^[0-9a-fA-F]{24}$/;
+
+const ObjectIdValido = "649c4e14e0721ad0c6f97f96";
+const ObjectIdInValido = "649c4e14e0721ad0c6f97f96";
+
+if (ObjectIdValido.match(expresionRegularTelefono) !== null) {
+	console.log("ObjectId valido")
+}
+else if (ObjectIdValido.match(expresionRegularObjectId) === null) {
+	console.log("ObjectId invalido")
+}
+```
