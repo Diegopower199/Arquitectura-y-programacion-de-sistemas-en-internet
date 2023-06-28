@@ -4,7 +4,7 @@
 ## Comprobar que es tipo string
 ```
 if (typeof x !== "string") {
-  context.response.body = { msg: "La campo x no es de tipo string" };
+  context.response.body = { msg: "La campo x no es de tipo string", };
   context.response.status = 400;
   return;
 }
