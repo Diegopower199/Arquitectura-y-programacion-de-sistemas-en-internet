@@ -2,6 +2,6 @@
 export type Coche = {
     id: string,
     matricula: string,
-    numeroPLazas: number,
+    numeroPlazas: number,
     status: boolean,
 }

@@ -14,34 +14,35 @@ type GetCocheContext = RouterContext<
 
 export const getCar = async (context: GetCocheContext) => {
   try {
-    const params = getQuery(context, { mergeParams: true });
-    if (!params.id) {
-      context.response.body = { msg: "Falta el parametro id" };
+    if (context.params?.id) {
+      const id = context.params.id;
+
+      const cocheEncontrado: CocheSchema | undefined = await CocheCollection.findOne({
+          _id: new ObjectId(id),
+        });
+
+      if (!cocheEncontrado) {
+        context.response.body = { msg: "El id del coche no existe" };
+        context.response.status = 400;
+        return;
+      }
+
+      context.response.body = {
+        _id: cocheEncontrado?._id,
+        matricula: cocheEncontrado?.matricula,
+        numeroPlazas: cocheEncontrado?.numeroPlazas,
+        status: cocheEncontrado?.status,
+      };
+      context.response.status = 200;
+    } 
+    else {
+      context.response.body = { msg: "No se ha introducido el parametro id" };
       context.response.status = 400;
+      return;
     }
-    
-    const { id } = params;
-
-    const cocheEncontrado: CocheSchema | undefined = await CocheCollection.findOne({
-      _id: new ObjectId(id),
-    });
-
-    if (!cocheEncontrado) {
-      context.response.body = { msg: "El id del coche no existe" };
-      context.response.status = 400;
-    }
-
-    context.response.body = {
-      _id: cocheEncontrado?._id,
-      matricula: cocheEncontrado?.matricula,
-      numeroPlazas: cocheEncontrado?.numeroPLazas,
-      status: cocheEncontrado?.status,
-    }
-    context.response.status = 200;
   } 
   catch (error) {
     console.log(error);
     context.response.status = 500;
   }
 };
-

@@ -4,8 +4,8 @@ import { RouterContext } from "oak/router.ts";
 import { CocheCollection } from "../db/dbconnection.ts";
 import { CocheSchema } from "../db/schema.ts";
 
-
-type DeleteCocheConIdContext = RouterContext<"/removeCar/:id",
+type DeleteCocheConIdContext = RouterContext<
+  "/removeCar/:id",
   {
     id: string;
   } & Record<string | number, string | undefined>,
@@ -14,44 +14,44 @@ type DeleteCocheConIdContext = RouterContext<"/removeCar/:id",
 
 export const deleteCocheConID = async (context: DeleteCocheConIdContext) => {
   try {
-    const params = getQuery(context, { mergeParams: true });
+    if (context.params?.id) {
+      const id = context.params.id;
 
-    if (!params.id) {
-      context.response.body = { msg: "No falta el parametro id" };
+      const cocheEncontrado: CocheSchema | undefined =  await CocheCollection.findOne({
+          _id: new ObjectId(id),
+        });
+
+      if (!cocheEncontrado) {
+        context.response.body = { msg: "No se ha encontrado ningun coche con ese id", };
+        context.response.status = 404;
+        return;
+      } 
+      else if (cocheEncontrado.status === false) {
+        context.response.status = 405;
+        return;
+      }
+
+      await CocheCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+
+      context.response.body = {
+        msg: "Se ha eliminado correctamente",
+        _id: cocheEncontrado?._id,
+        matricula: cocheEncontrado?.matricula,
+        numeroPlazas: cocheEncontrado?.numeroPlazas,
+        status: cocheEncontrado?.status,
+      };
+      context.response.status = 200;
+    } 
+    else {
+      context.response.body = { msg: "No se ha introducido el parametro id" };
       context.response.status = 400;
+      return;
     }
-    const { id } = params;
-
-    const cocheEncontrado: CocheSchema | undefined = await CocheCollection.findOne({
-      _id: new ObjectId(id),
-    })
-
-    if (!cocheEncontrado) {
-      //context.response.body = { msg: "No se ha encontrado ningun coche con ese id" }
-      context.response.status = 404;
-    }
-    else if (cocheEncontrado.status === false) {
-      context.response.status = 405;
-    }
-
-    await CocheCollection.deleteOne({
-      _id: new ObjectId(id),
-    });
-
-    context.response.body = {
-      msg: "Se ha eliminado correctamente",
-      _id: cocheEncontrado?._id,
-      matricula: cocheEncontrado?.matricula,
-      numeroPLazas: cocheEncontrado?.numeroPLazas,
-      status: cocheEncontrado?.status
-    };
-    context.response.status = 200;
-  }
-
-  catch(error) {
+  } 
+  catch (error) {
     console.log(error);
     context.response.status = 500;
   }
 };
-
-
