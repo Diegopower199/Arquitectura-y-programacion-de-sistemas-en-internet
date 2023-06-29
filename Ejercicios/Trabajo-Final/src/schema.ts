@@ -46,13 +46,14 @@ type Mutation {
   escribirPost(token: String!, title: String!, contenido: String!): Post!
 
   updateComentario(idComentario: ID!, idPost: ID!, token: String!, contenido: String!): Comentario!
-  updatePost(idPost: ID!, token: String!, titleNew: String!, contenidoNew: String!): Post!
+  updatePost(idPost: ID!, token: String!, titleNew: String, contenidoNew: String): Post!
 
   deleteComentario(idComentario: ID!, token: String!): Comentario!
   deletePost(idPost: ID!, token: String!): Post!
 
   registrer(username: String!, password: String!, tipoUsuario: tipoUsuario!): Usuario!
   login(username: String!, password: String!): String!
-  signOut(token: String!): String!
+  logOut(token: String!): String!
+  signOut (token: String!): String!
 }
 `;

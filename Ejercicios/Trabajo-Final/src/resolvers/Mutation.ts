@@ -1,18 +1,26 @@
 import { ObjectId } from "mongo";
 import { ComentarioSchema, PostSchema, UsuarioSchema } from "../db/schema.ts";
 import { Post, Usuario, tipoUsuario } from "../types.ts";
-import { ComentariosCollection, PostsCollection, UsuariosCollection } from "../db/dbconnection.ts";
+import {
+  ComentariosCollection,
+  PostsCollection,
+  UsuariosCollection,
+} from "../db/dbconnection.ts";
 import { createJWT, verifyJWT } from "../lib/jwt.ts";
 import * as bcrypt from "bcrypt";
 
 // No esta bien el createUser
 export const Mutation = {
-  registrer: async (_: unknown, args: { username: string; password: string; tipoUsuario: tipoUsuario }): Promise<UsuarioSchema & { token: string }> => {
+  registrer: async (
+    _: unknown,
+    args: { username: string; password: string; tipoUsuario: tipoUsuario }
+  ): Promise<UsuarioSchema & { token: string }> => {
     try {
       const { username, password, tipoUsuario } = args;
-      const existsUsuario: UsuarioSchema | undefined = await UsuariosCollection.findOne({
-        username: username,
-      });
+      const existsUsuario: UsuarioSchema | undefined =
+        await UsuariosCollection.findOne({
+          username: username,
+        });
 
       if (existsUsuario) {
         throw new Error("User already exists");
@@ -96,7 +104,10 @@ export const Mutation = {
       throw new Error(e);
     }
   },
-  login: async (_: unknown, args: { username: string; password: string }): Promise<string> => {
+  login: async (
+    _: unknown,
+    args: { username: string; password: string }
+  ): Promise<string> => {
     try {
       const { username, password } = args;
       const user: UsuarioSchema | undefined = await UsuariosCollection.findOne({
@@ -144,7 +155,7 @@ export const Mutation = {
       throw new Error(e);
     }
   },
-  signOut: async (_: unknown, args: { token: string }): Promise<string> => {
+  logOut: async (_: unknown, args: { token: string }): Promise<string> => {
     try {
       const { token } = args;
 
@@ -154,20 +165,126 @@ export const Mutation = {
       )) as Usuario;
 
       await UsuariosCollection.updateOne(
-        {_id: new ObjectId(user.id)},
+        { _id: new ObjectId(user.id) },
         {
           $set: {
             inicioSesionCuenta: false,
-          }
+          },
         }
-      )
+      );
       return `Se ha cerrado sesion de este usuario ${user.username}`;
-    }
-    catch (e) {
+    } catch (e) {
       throw new Error(e);
     }
   },
-  escribirComentarios: async(_: unknown, args: { idPost: string, token: string, contenido: string }): Promise<ComentarioSchema> => {
+  signOut: async (_: unknown, args: { token: string }): Promise<string> => {
+    try {
+      const { token } = args;
+
+      const user: Usuario = (await verifyJWT(
+        token,
+        Deno.env.get("JWT_SECRET")!
+      )) as Usuario;
+
+      if (user.inicioSesionCuenta === false) {
+        console.log("No tiene iniciada sesion");
+        throw new Error("No tiene iniciada sesion");
+      }
+
+      const usuarioInformacion = await UsuariosCollection.findOne({
+        _id: new ObjectId(user.id),
+      });
+
+      if (!usuarioInformacion) {
+        throw new Error("No existe el usuario");
+      }
+
+      const postsPromesas: Promise<PostSchema>[] = usuarioInformacion?.postCreados.map(
+        async (post: ObjectId): Promise<PostSchema> => {
+          const postEncontrado: PostSchema | undefined =
+            await PostsCollection.findOne({ _id: post });
+            //console.log(typeof postEncontrado === "undefined");
+
+          if (!postEncontrado) {
+            throw new Error(`Esta id: ${post} no esta en la base de datos`);
+          }
+
+          return postEncontrado;
+        }
+      );
+
+      console.log(
+        "Posts promesas (Abajo lo que hago es esperar a que se completen): ",
+        postsPromesas
+      );
+
+      const postsEncontrados: (Omit<Post, "id" | "comentarios"> & {
+        _id: ObjectId;
+        comentarios: ObjectId[];
+    })[] = await Promise.all(postsPromesas);
+
+      console.log("PROMESAS DE POSTS: ")
+      console.log(postsEncontrados);
+
+      // Si quiero el campo de comentarios tengo que hacer flatMap para desestructurar el tipo
+      const comentariosIds: ObjectId[] = postsEncontrados.flatMap(({ comentarios }) => comentarios);
+
+
+
+       const comentariosPromesas = comentariosIds.map(
+        async (comentario) => {
+          const comentarioEncontrado: ComentarioSchema | undefined =
+            await ComentariosCollection.findOne({ _id: new ObjectId(comentario) });
+
+          if (!comentarioEncontrado) {
+            throw new Error(`Esta id: ${comentario} no esta en la base de datos`);
+          }
+
+          return comentarioEncontrado;
+        }
+      );
+
+      console.log(
+        "Comentarios promesas (Abajo lo que hago es esperar a que se completen): ",
+        comentariosPromesas
+      );
+
+      const comentariosEncontrados = await Promise.all(comentariosPromesas);
+
+
+        console.log("PROMESAS DE POSTS: ")
+      console.log(postsEncontrados);
+
+      console.log("\n\nPROMESAS DE COMENTARIOS:")
+      console.log(comentariosEncontrados)
+
+      await UsuariosCollection.deleteOne({
+        _id: new ObjectId(user.id),
+      })
+      
+      postsEncontrados.map( async (post) => {
+        await PostsCollection.deleteOne(
+          { _id:  post._id}
+        );
+      });
+
+      comentariosEncontrados.map( async (comentario) => {
+        await ComentariosCollection.deleteOne({
+          _id: comentario._id
+        })
+      })
+
+      
+
+      return `Se ha eliminado toda la informacion del usuario ${user.username}`;
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
+  escribirComentarios: async (
+    _: unknown,
+    args: { idPost: string; token: string; contenido: string }
+  ): Promise<ComentarioSchema> => {
     try {
       const { idPost, token, contenido } = args;
 
@@ -175,50 +292,52 @@ export const Mutation = {
         token,
         Deno.env.get("JWT_SECRET")!
       )) as Usuario;
-      
+
       if (user.inicioSesionCuenta === false) {
         console.log("No tiene iniciada sesion");
-        throw new Error("No tiene iniciada sesion")
+        throw new Error("No tiene iniciada sesion");
       }
-      console.log(user)
+      console.log(user);
 
       const postExiste: PostSchema | undefined = await PostsCollection.findOne({
         _id: new ObjectId(idPost),
-      })
+      });
 
       if (!postExiste) {
         throw new Error("No existe un post con ese id");
       }
 
-      const fecha = new Date()
+      const fecha = new Date();
 
       const addComentario: ObjectId = await ComentariosCollection.insertOne({
         contenido: contenido,
-        fechaCreacion: fecha
-      })
+        fechaCreacion: fecha,
+      });
 
       await PostsCollection.updateOne(
-        {_id:  new ObjectId(idPost)},
+        { _id: new ObjectId(idPost) },
         {
           $push: {
             comentarios: {
-              $each: [addComentario]
-            }
-          }
+              $each: [addComentario],
+            },
+          },
         }
-      )
+      );
 
       return {
         _id: addComentario,
         contenido: contenido,
-        fechaCreacion: fecha
-      }
-    }
-    catch (e) {
+        fechaCreacion: fecha,
+      };
+    } catch (e) {
       throw new Error(e);
     }
   },
-  escribirPost: async (_: unknown, args: { token: string, title: string, contenido: string }): Promise<PostSchema> => {
+  escribirPost: async (
+    _: unknown,
+    args: { token: string; title: string; contenido: string }
+  ): Promise<PostSchema> => {
     try {
       const { token, title, contenido } = args;
 
@@ -229,13 +348,12 @@ export const Mutation = {
 
       if (user.inicioSesionCuenta === false) {
         console.log("No tiene iniciada sesion");
-        throw new Error("No tiene iniciada sesion")
-      }
-      else if (user.tipoUsuario.toString() === "REGISTRADO_NORMAL") {
+        throw new Error("No tiene iniciada sesion");
+      } else if (user.tipoUsuario.toString() === "REGISTRADO_NORMAL") {
         console.log("El usuario se ha registrado como normal");
         throw new Error("El usuario se ha registrado como normal");
       }
-      console.log(user)
+      console.log(user);
 
       const postExiste: PostSchema | undefined = await PostsCollection.findOne({
         title: title,
@@ -245,7 +363,7 @@ export const Mutation = {
         throw new Error("Ya existe un post con ese titulo");
       }
 
-      const fecha = new Date()
+      const fecha = new Date();
 
       const addPost: ObjectId = await PostsCollection.insertOne({
         title: title,
@@ -255,15 +373,15 @@ export const Mutation = {
       });
 
       await UsuariosCollection.updateOne(
-        {_id: new ObjectId(user.id)},
+        { _id: new ObjectId(user.id) },
         {
           $push: {
             postCreados: {
-              $each: [addPost]
-            }
-          }
+              $each: [addPost],
+            },
+          },
         }
-      )
+      );
 
       return {
         _id: addPost,
@@ -271,16 +389,22 @@ export const Mutation = {
         contenido: contenido,
         fechaPost: fecha,
         comentarios: [],
-      }
-
-    }
-    catch (e) {
+      };
+    } catch (e) {
       throw new Error(e);
     }
   },
-  updateComentario: async (_: unknown, args: { idComentario: string, idPost: string, token: string, contenido: string }): Promise<ComentarioSchema> => {
+  updateComentario: async (
+    _: unknown,
+    args: {
+      idComentario: string;
+      idPost: string;
+      token: string;
+      contenido: string;
+    }
+  ): Promise<ComentarioSchema> => {
     try {
-      const { idComentario,idPost, token, contenido } = args;
+      const { idComentario, idPost, token, contenido } = args;
 
       const user: Usuario = (await verifyJWT(
         token,
@@ -289,9 +413,8 @@ export const Mutation = {
 
       if (user.inicioSesionCuenta === false) {
         console.log("No tiene iniciada sesion");
-        throw new Error("No tiene iniciada sesion")
-      }
-      else if (user.tipoUsuario.toString() === "REGISTRADO_NORMAL") {
+        throw new Error("No tiene iniciada sesion");
+      } else if (user.tipoUsuario.toString() === "REGISTRADO_NORMAL") {
         console.log("El usuario se ha registrado como normal");
         throw new Error("El usuario se ha registrado como normal");
       }
@@ -301,23 +424,28 @@ export const Mutation = {
       });
 
       if (!postExiste) {
-        throw new Error("No existe un post con ese id");
+        throw new Error(
+          "No existe un post con ese id con el usuario seleccionado "
+        );
       }
 
-      const comentarioExiste: ComentarioSchema | undefined = await ComentariosCollection.findOne({
-        _id: new ObjectId(idComentario),
-      });
+      const comentarioExiste: ComentarioSchema | undefined =
+        await ComentariosCollection.findOne({
+          _id: new ObjectId(idComentario),
+        });
 
       if (!comentarioExiste) {
-        throw new Error("No existe un comentario con ese id");
+        throw new Error(
+          "No existe un comentario con ese id con el usuario seleccionado "
+        );
       }
 
       await ComentariosCollection.updateOne(
-        {_id: new ObjectId(idComentario)},
+        { _id: new ObjectId(idComentario) },
         {
           $set: {
-            contenido: contenido
-          }
+            contenido: contenido,
+          },
         }
       );
 
@@ -325,18 +453,25 @@ export const Mutation = {
         _id: new ObjectId(idComentario),
         contenido: contenido,
         fechaCreacion: comentarioExiste.fechaCreacion,
-      }
-      
-    }
-    catch (e) {
+      };
+    } catch (e) {
       throw new Error(e);
     }
   },
-  updatePost: async (_: unknown, args: { idPost: string, token: string, titleNew?: string, contenidoNew?: string }): Promise<PostSchema> => {
+  updatePost: async (
+    _: unknown,
+    args: {
+      idPost: string;
+      token: string;
+      titleNew?: string;
+      contenidoNew?: string;
+    }
+  ): Promise<PostSchema> => {
     try {
       const { idPost, token, titleNew, contenidoNew } = args;
 
-      const actualizarParametros: { titleNew?: string,  contenidoNew?: string } = {};
+      const actualizarParametros: { titleNew?: string; contenidoNew?: string } =
+        {};
 
       if (titleNew) {
         actualizarParametros.titleNew = titleNew;
@@ -353,9 +488,8 @@ export const Mutation = {
 
       if (user.inicioSesionCuenta === false) {
         console.log("No tiene iniciada sesion");
-        throw new Error("No tiene iniciada sesion")
-      }
-      else if (user.tipoUsuario.toString() === "REGISTRADO_NORMAL") {
+        throw new Error("No tiene iniciada sesion");
+      } else if (user.tipoUsuario.toString() === "REGISTRADO_NORMAL") {
         console.log("El usuario se ha registrado como normal");
         throw new Error("El usuario se ha registrado como normal");
       }
@@ -365,31 +499,35 @@ export const Mutation = {
       });
 
       if (!postExiste) {
-        throw new Error("No existe un post con ese id");
+        throw new Error(
+          "No existe un post con ese id con el usuario seleccionado "
+        );
       }
 
       await PostsCollection.updateOne(
-        {_id: postExiste._id},
+        { _id: postExiste._id },
         {
-          $set: {
-            actualizarParametros
-          }
+          $set: actualizarParametros,
         }
       );
 
       return {
         _id: postExiste._id,
-        title: actualizarParametros.titleNew  || postExiste.title,
+        title: actualizarParametros.titleNew || postExiste.title,
         contenido: actualizarParametros.contenidoNew || postExiste.contenido,
         fechaPost: postExiste.fechaPost,
-        comentarios: postExiste.comentarios.map( (comentario) => new ObjectId(comentario))
-      }
-    }
-    catch (e) {
+        comentarios: postExiste.comentarios.map(
+          (comentario) => new ObjectId(comentario)
+        ),
+      };
+    } catch (e) {
       throw new Error(e);
     }
   },
-  deleteComentario: async (_: unknown, args: { idComentario: string, token: string }): Promise<ComentarioSchema> => {
+  deleteComentario: async (
+    _: unknown,
+    args: { idComentario: string; token: string }
+  ): Promise<ComentarioSchema> => {
     try {
       const { idComentario, token } = args;
 
@@ -397,6 +535,14 @@ export const Mutation = {
         token,
         Deno.env.get("JWT_SECRET")!
       )) as Usuario;
+
+      if (user.inicioSesionCuenta === false) {
+        console.log("No tiene iniciada sesion");
+        throw new Error("No tiene iniciada sesion");
+      } else if (user.tipoUsuario.toString() === "REGISTRADO_NORMAL") {
+        console.log("El usuario se ha registrado como normal");
+        throw new Error("El usuario se ha registrado como normal");
+      }
 
       const comentarioExiste = await ComentariosCollection.findOne({
         _id: new ObjectId(idComentario),
@@ -408,19 +554,18 @@ export const Mutation = {
 
       const encontrarComentarioEnPost = await PostsCollection.findOne({
         comentarios: new ObjectId(idComentario),
-      })
-
+      });
 
       await ComentariosCollection.deleteOne({
         _id: new ObjectId(idComentario),
       });
 
       await PostsCollection.updateOne(
-        {_id: encontrarComentarioEnPost?._id},
+        { _id: encontrarComentarioEnPost?._id },
         {
           $pull: {
-            comentarios: new ObjectId(idComentario)
-          }
+            comentarios: new ObjectId(idComentario),
+          },
         }
       );
 
@@ -428,19 +573,29 @@ export const Mutation = {
         _id: new ObjectId(idComentario),
         contenido: comentarioExiste.contenido,
         fechaCreacion: comentarioExiste.fechaCreacion,
-      }
-    }
-    catch (e) {
+      };
+    } catch (e) {
       throw new Error(e);
     }
   },
-  deletePost: async (_: unknown, args: { idPost: string, token: string }): Promise<PostSchema> => {
+  deletePost: async (
+    _: unknown,
+    args: { idPost: string; token: string }
+  ): Promise<PostSchema> => {
     try {
       const { idPost, token } = args;
       const user: Usuario = (await verifyJWT(
         token,
         Deno.env.get("JWT_SECRET")!
       )) as Usuario;
+
+      if (user.inicioSesionCuenta === false) {
+        console.log("No tiene iniciada sesion");
+        throw new Error("No tiene iniciada sesion");
+      } else if (user.tipoUsuario.toString() === "REGISTRADO_NORMAL") {
+        console.log("El usuario se ha registrado como normal");
+        throw new Error("El usuario se ha registrado como normal");
+      }
 
       const postExiste = await PostsCollection.findOne({
         _id: new ObjectId(idPost),
@@ -455,11 +610,11 @@ export const Mutation = {
       });
 
       await UsuariosCollection.updateOne(
-        {_id: new ObjectId(user.id)},
+        { _id: new ObjectId(user.id) },
         {
           $pull: {
-            postCreados: new ObjectId(idPost)
-          }
+            postCreados: new ObjectId(idPost),
+          },
         }
       );
 
@@ -468,19 +623,15 @@ export const Mutation = {
         title: postExiste.title,
         contenido: postExiste.contenido,
         fechaPost: postExiste.fechaPost,
-        comentarios: postExiste.comentarios.map( (comentario) => new ObjectId(comentario))
-      }
-
-    }
-    catch (e) {
+        comentarios: postExiste.comentarios.map(
+          (comentario) => new ObjectId(comentario)
+        ),
+      };
+    } catch (e) {
       throw new Error(e);
     }
   },
-
-  
 };
-
-  
 
 /*
 deleteBook: async (_: unknown, args: { id: string }): Promise<BookSchema> => {
