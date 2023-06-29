@@ -10,20 +10,19 @@ export type Usuario = {
   token?: string,
   fechaCreacion: Date,
   tipoUsuario: tipoUsuario,
-  postCreados: string[]
+  postCreados: string[],
+  inicioSesionCuenta: boolean,
 };
 
 export type Post = {
   id: string,
   title: string,
   contenido: string,
-  postUsuario: string,
   comentarios: string[],
   fechaPost: Date
 }
 export type Comentario = {
   id: string,
-  idUsuario: string,
   contenido: string,
   fechaCreacion: Date,
 }

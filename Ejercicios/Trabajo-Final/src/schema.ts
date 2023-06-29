@@ -15,21 +15,20 @@ type Usuario {
   fechaCreacion: Date!
   tipoUsuario: tipoUsuario!
   postCreados: [Post!]!
+  inicioSesionCuenta: Boolean!
+  token: String
 }
 
 type Post {
   _id: ID!
   title: String
   contenido: String!
-  postUsuario: ID!
   comentarios: [Comentario!]!
   fechaPost: Date!
-
 }
 
 type Comentario {
   _id: ID!
-  idUsuario: ID!
   contenido: String!
   fechaCreacion: Date!
 }
@@ -46,13 +45,14 @@ type Mutation {
   escribirComentarios(idPost: ID!, token: String! contenido: String!): Comentario!
   escribirPost(token: String!, title: String!, contenido: String!): Post!
 
-  updateComentario(idPost: ID!, token: String!, contenido: String!): Comentario!
-  updatePost(idPost: ID!, token: String!, titleNew: String, contenidoNew: String): Post!
+  updateComentario(idComentario: ID!, idPost: ID!, token: String!, contenido: String!): Comentario!
+  updatePost(idPost: ID!, token: String!, titleNew: String!, contenidoNew: String!): Post!
 
   deleteComentario(idComentario: ID!, token: String!): Comentario!
   deletePost(idPost: ID!, token: String!): Post!
 
-  createUser(username: String!, password: String!, tipoUsuario: tipoUsuario!): Usuario!
+  registrer(username: String!, password: String!, tipoUsuario: tipoUsuario!): Usuario!
   login(username: String!, password: String!): String!
+  signOut(token: String!): String!
 }
 `;

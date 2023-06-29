@@ -8,10 +8,16 @@ await config({ export: true, allowEmptyValues: true });
 import { Query } from "./resolvers/Query.ts";
 import { Mutation } from "./resolvers/Mutation.ts";
 import { typeDefs } from "./schema.ts";
+import { Author } from "./resolvers/Author.ts";
+import { PressHouse } from "./resolvers/PressHouse.ts";
+import { Book } from "./resolvers/Book.ts";
 
 const resolvers = {
   Query,
   Mutation,
+  Author,
+  PressHouse,
+  Book
 };
 
 const port = Number(Deno.env.get("PORT"));

@@ -14,7 +14,6 @@ export type PostSchema = Omit<Post, "id" | "comentarios"> & {
 }
 
 
-export type ComentarioSchema = Omit<Comentario, "id" | "idUsuario"> & {
-    _id: ObjectId
-    idUsuario: ObjectId,
+export type ComentarioSchema = Omit<Comentario, "id"> & {
+    _id: ObjectId,
 }

@@ -11,16 +11,8 @@ export const Query = {
     try {
       const { idPost, title } = args;
 
-      const usuarioExiste: UsuarioSchema | undefined = await UsuariosCollection.findOne({
-        _id: new ObjectId(idPost),
-      });
-
-      if (!usuarioExiste) {
-        throw new Error("No existe el post con esa id")
-      }
-
       const postExiste: PostSchema | undefined = await PostsCollection.findOne({
-        idUsuario: new ObjectId(idPost),
+        _id: new ObjectId(idPost),
         title: title,
       });
 
@@ -32,7 +24,6 @@ export const Query = {
         _id: postExiste._id,
         contenido: postExiste.contenido,
         fechaPost: postExiste.fechaPost,
-        postUsuario: postExiste.postUsuario,
         title: postExiste.title,
         comentarios: postExiste.comentarios.map( (comentario) => new ObjectId(comentario)),
       }
@@ -65,7 +56,6 @@ export const Query = {
 
       return {
         _id: comentarioExiste._id,
-        idUsuario: comentarioExiste.idUsuario,
         contenido: comentarioExiste.contenido,
         fechaCreacion: comentarioExiste.fechaCreacion
       }
@@ -83,7 +73,6 @@ export const Query = {
         _id: post._id,
         contenido: post.contenido,
         fechaPost: post.fechaPost,
-        postUsuario: post.postUsuario,
         title: post.title,
         comentarios: post.comentarios.map( (comentario) => new ObjectId(comentario))
       }))
@@ -100,14 +89,13 @@ export const Query = {
         _id: comentario._id,
         contenido: comentario.contenido,
         fechaCreacion: comentario.fechaCreacion,
-        idUsuario: comentario.idUsuario,
       }))
     }
     catch(error) {
         throw new Error(error);
     }
   },
-  verToken: async (_: unknown, args: {token: string }) => {
+  verToken: async (_: unknown, args: {token: string }): Promise<Usuario> => {
     try {
       const user: Usuario = (await verifyJWT(
         args.token,
