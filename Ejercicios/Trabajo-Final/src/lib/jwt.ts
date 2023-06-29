@@ -1,4 +1,5 @@
 import { create, Header, Payload, verify } from "jwt";
+import { Usuario } from "../types.ts";
 
 const encoder = new TextEncoder();
 
