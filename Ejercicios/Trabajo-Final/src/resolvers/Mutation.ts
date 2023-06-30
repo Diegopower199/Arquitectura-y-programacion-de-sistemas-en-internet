@@ -33,7 +33,6 @@ export const Mutation = {
         {
           id: _id.toString(),
           username: username,
-          password: hashedPassword,
           fechaCreacion: new Date(),
           tipoUsuario: tipoUsuario,
           postCreados: [],
