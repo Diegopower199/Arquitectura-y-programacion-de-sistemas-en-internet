@@ -1,0 +1,1 @@
+El update no me sale bien y el solapamiento temporal del post tampoco
